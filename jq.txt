@@ -1,0 +1,126 @@
+$(document).ready(function () {
+    var hdnHMR_ID = $('#hdnHMR_ID').val();
+    var hdnIS_LOCKED = $('#hdnIS_LOCKED').val();
+
+    if (parseInt(hdnHMR_ID) > 0) {
+        if (hdnIS_LOCKED == "0") {
+            $('#btnSubmit').hide();
+            $('#btnUpdate').hide();
+            //$('#btnLock').show();
+        }
+        else {
+            $('#btnSubmit').hide();
+            $('#btnUpdate').show();
+            //$('#btnLock').hide();
+            $('#tbodyList').attr("disabled", "disabled");
+
+        }
+    }
+    else {
+
+        $('#btnSubmit').show();
+        $('#btnUpdate').hide();
+        //$('#btnLock').hide();
+    }
+
+    $('.cal.numeric').on('change', function () {
+
+        var ind = $(this).attr('id').split('_')[1];
+        var txtStart = $('#txtStart_' + ind).val();
+        var txtEnd = $('#txtEnd_' + ind).val();
+
+        if (txtStart === '' || txtEnd === '') {
+            $('#txtTotal_' + ind).val('');
+            $('#txtEnd_' + ind).val('');
+            return;
+        }
+
+        var startTime = txtStart.split(':');
+        var endTime = txtEnd.split(':');
+
+
+        var hours = 0;
+        var minutes = 0;
+        var seconds = 0;
+
+        if (!isNaN(parseInt(startTime[0])) && !isNaN(parseInt(endTime[0]))) {
+            hours = parseInt(endTime[0]) - parseInt(startTime[0]);
+        }
+
+        if (!isNaN(parseInt(startTime[1])) && !isNaN(parseInt(endTime[1]))) {
+            minutes = parseInt(endTime[1]) - parseInt(startTime[1]);
+        }
+
+        if (!isNaN(parseInt(startTime[2])) && !isNaN(parseInt(endTime[2]))) {
+            seconds = parseInt(endTime[2]) - parseInt(startTime[2]);
+        }
+
+        if (seconds < 0) {
+            minutes--;
+            seconds += 60;
+        }
+        if (minutes < 0) {
+            hours--;
+            minutes += 60;
+        }
+
+        if (hours < 0 || (hours === 0 && minutes < 0) || (hours === 0 && minutes === 0 && seconds < 0)) {
+            $('#lblMsg').text('End Time is not greater than Start Time.');
+            $('#alert-modal').modal('show');
+            $('#txtTotal_' + ind).val('');
+            $('#txtEnd_' + ind).val('');
+
+        }
+        else {
+            //$('#txtTotal_' + ind).val(hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0') + '.' + seconds.toString().padStart(2, '0'));
+            var totalValue = hours.toString().padStart(2, '0') + '.' + minutes.toString().padStart(2, '0') + '.' + seconds.toString().padStart(2, '0');
+            $('#txtTotal_' + ind).val(totalValue);
+        }
+    });
+
+
+    $('#btnSubmit').click(function (e) {
+        var errCnt = ValidateTable();
+
+        if (errCnt === 0) {
+            e.preventDefault();
+        } else {
+            e.preventDefault();
+            alert('Enter at least one record before submitting.');
+        }
+    });
+
+    function ValidateTable() {
+        var errCnt = 0;
+        var hasData = false;
+
+        $('#tblList tr').each(function () {
+            var ind = $(this).attr('id').split("_")[1];
+
+            var startTime = $('#txtStart_' + ind).val();
+            var endTime = $('#txtEnd_' + ind).val();
+            var total = $('#txtTotal_' + ind).val();
+            var remarks = $('#txtRemarks_' + ind).val();
+
+            if (startTime === '' || endTime === '' || total === '' || remarks === '') {
+                errCnt++;
+            } else {
+                hasData = true;
+            }
+        });
+
+        if (!hasData) {
+            alert('Enter at least one record before submitting.');
+        }
+
+        return errCnt;
+    }
+
+
+
+
+
+
+
+
+});
